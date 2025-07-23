@@ -15,7 +15,7 @@ dscli是一个用于开发dsserv服务模块的脚手架工具，提供类似vue
 ### 从源码构建
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/yourenyouyu/dscli.git
 cd dscli
 make build
 sudo make install
