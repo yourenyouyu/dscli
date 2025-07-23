@@ -1,0 +1,16 @@
+{
+  "assets": [
+    "README.md",
+    "configs",
+    "docs",
+    "static"
+  ],
+  "excludes": [
+    "*.log",
+    "*.tmp",
+    ".git",
+    "node_modules"
+  ],
+  "create_zip": true,
+  "output_dir": "dist"
+}
