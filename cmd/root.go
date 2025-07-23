@@ -19,6 +19,28 @@ func Execute() error {
 }
 
 func init() {
+	// 添加自定义的帮助命令
+	helpCmd := &cobra.Command{
+		Use:   "help [command]",
+		Short: "查看任何命令的帮助信息",
+		Long:  "查看任何命令的帮助信息。",
+		Run: func(cmd *cobra.Command, args []string) {
+			if len(args) == 0 {
+				rootCmd.Help()
+			} else {
+				subCmd, _, err := rootCmd.Find(args)
+				if err != nil {
+					cmd.Printf("未知命令 \"%s\"\n", args[0])
+					return
+				}
+				subCmd.Help()
+			}
+		},
+	}
+	
+	// 替换默认的帮助命令
+	rootCmd.SetHelpCommand(helpCmd)
+	
 	// Cobra 也支持本地标志，只有在直接调用此操作时才会运行。
 	rootCmd.Flags().BoolP("toggle", "t", false, "切换选项的帮助信息")
 }
