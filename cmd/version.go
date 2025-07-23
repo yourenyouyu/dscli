@@ -9,7 +9,7 @@ import (
 
 var (
 	// 这些将由构建标志设置
-	Version = "0.0.1"
+	Version = "0.0.2"
 )
 
 // versionCmd 代表 version 命令

@@ -19,6 +19,40 @@ func Execute() error {
 }
 
 func init() {
+	// 设置自定义帮助模板
+	rootCmd.SetHelpTemplate(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
+
+{{end}}{{if or .Runnable .HasSubCommands}}{{.UsageString}}{{end}}`)
+	
+	// 设置自定义使用模板
+	rootCmd.SetUsageTemplate(`用法:{{if .Runnable}}
+  {{.UseLine}}{{end}}{{if .HasAvailableSubCommands}}
+  {{.CommandPath}} [command]{{end}}{{if gt (len .Aliases) 0}}
+
+别名:
+  {{.NameAndAliases}}{{end}}{{if .HasExample}}
+
+示例:
+{{.Example}}{{end}}{{if .HasAvailableSubCommands}}
+
+可用命令:{{range .Commands}}{{if (or .IsAvailableCommand (eq .Name "help"))}}
+  {{rpad .Name .NamePadding }} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableLocalFlags}}
+
+选项:
+{{.LocalFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasAvailableInheritedFlags}}
+
+全局选项:
+{{.InheritedFlags.FlagUsages | trimTrailingWhitespaces}}{{end}}{{if .HasHelpSubCommands}}
+
+其他帮助主题:{{range .Commands}}{{if .IsAdditionalHelpTopicCommand}}
+  {{rpad .CommandPath .CommandPathPadding}} {{.Short}}{{end}}{{end}}{{end}}{{if .HasAvailableSubCommands}}
+
+使用 "{{.CommandPath}} [command] --help" 获取命令的更多信息。{{end}}
+`)
+	
+	// 自定义帮助标志的描述
+	rootCmd.PersistentFlags().BoolP("help", "h", false, "显示 dscli 的帮助信息")
+	
 	// 添加自定义的帮助命令
 	helpCmd := &cobra.Command{
 		Use:   "help [command]",
