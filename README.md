@@ -137,8 +137,11 @@ dscli build -t all
 **assets** - 资源文件列表
 - 指定构建时需要包含到压缩包中的文件或目录
 - 支持相对路径，相对于项目根目录
+- 支持两种格式：
+  - **字符串数组格式**：`["README.md", "configs", "docs"]`
+  - **对象数组格式**：`[{"src": "configs", "dest": "config"}, {"src": "docs", "dest": "documentation"}]`
+- 对象格式支持重命名：`src` 为源路径，`dest` 为目标路径
 - 常见用途：包含配置文件、文档、静态资源等
-- 示例：`["README.md", "configs", "docs", "static", "templates"]`
 
 **excludes** - 排除文件模式
 - 指定打包时需要排除的文件或目录模式
@@ -182,6 +185,25 @@ dscli build -t all
     "**/.vscode"
   ],
   "output_dir": "release"
+}
+```
+
+**使用对象数组格式的配置示例:**
+```json
+{
+  "assets": [
+    "README.md",
+    {"src": "configs", "dest": "config"},
+    {"src": "docs", "dest": "documentation"},
+    {"src": "static/images", "dest": "assets/img"},
+    "templates"
+  ],
+  "excludes": [
+    "*.log",
+    "*.tmp",
+    ".git"
+  ],
+  "output_dir": "dist"
 }
 ```
 
