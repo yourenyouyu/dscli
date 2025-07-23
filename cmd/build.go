@@ -57,10 +57,10 @@ var buildCmd = &cobra.Command{
 更新 manifest.json 文件的构建信息，并创建特定平台的 tar.gz 包。`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := buildProject(); err != nil {
-			fmt.Printf("Build failed: %v\n", err)
+			fmt.Printf("构建失败: %v\n", err)
 			return
 		}
-		fmt.Println("\n✅ Build completed successfully!")
+		fmt.Println("\n✅ 构建完成!")
 	},
 }
 
@@ -89,11 +89,11 @@ func buildProject() error {
 	// 读取当前清单
 	manifest, err := readManifest()
 	if err != nil {
-		return fmt.Errorf("failed to read manifest.json: %w", err)
+		return fmt.Errorf("读取 manifest.json 失败: %w", err)
 	}
 
 	projectName := manifest["name"].(string)
-	fmt.Printf("Building project: %s\n", projectName)
+	fmt.Printf("正在构建项目: %s\n", projectName)
 
 	// 确定要构建的目标
 	targets, err := getTargetsToBuild()
@@ -115,14 +115,14 @@ func buildProject() error {
 
 	// 为每个目标平台构建
 	for _, target := range targets {
-		fmt.Printf("Building for %s/%s...\n", target.OS, target.Arch)
+		fmt.Printf("正在为 %s/%s 构建...\n", target.OS, target.Arch)
 		if err := buildForTarget(projectName, target, distDir); err != nil {
-			fmt.Printf("Warning: Failed to build for %s/%s: %v\n", target.OS, target.Arch, err)
+			fmt.Printf("警告: %s/%s 构建失败: %v\n", target.OS, target.Arch, err)
 			continue
 		}
 	}
 
-	fmt.Println("\nBuild summary:")
+	fmt.Println("\n构建摘要:")
 	files, _ := filepath.Glob(filepath.Join(distDir, "*.tar.gz"))
 	for _, file := range files {
 		info, _ := os.Stat(file)
@@ -166,8 +166,8 @@ func buildForTarget(projectName string, target BuildTarget, distDir string) erro
 	// 2. 自动发现并构建cmd目录下的子目录
 	cmdExecutables, err := discoverCmdExecutables()
 	if err != nil {
-			fmt.Printf("⚠️  扫描cmd目录失败: %v\n", err)
-		} else {
+		fmt.Printf("⚠️  扫描cmd目录失败: %v\n", err)
+	} else {
 		for _, execName := range cmdExecutables {
 			binaryName := execName
 			if target.OS == "windows" {

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"github.com/yourenyouyu/dscli/cmd"
 	"fmt"
 	"os"
+
+	"github.com/yourenyouyu/dscli/cmd"
 )
 
 func main() {

@@ -7,8 +7,8 @@ import (
 // rootCmd 代表没有子命令时调用的基础命令
 var rootCmd = &cobra.Command{
 	Use:   "dscli",
-	Short: "DScli 是一个用于 dsserv 模块开发的脚手架工具",
-	Long: `DScli 是一个用于创建和构建 dsserv 模块的 CLI 工具。
+	Short: "dscli 是一个用于 dsserv 模块开发的脚手架工具",
+	Long: `dscli 是一个用于创建和构建 dsserv 模块的 CLI 工具。
 它提供类似 vue-cli 的项目脚手架和构建命令。`,
 }
 

@@ -79,18 +79,18 @@ var createCmd = &cobra.Command{
 		} else {
 			config, err = promptForProjectInfo(projectName)
 			if err != nil {
-				fmt.Printf("Error getting project information: %v\n", err)
+				fmt.Printf("获取项目信息时出错: %v\n", err)
 				return
 			}
 		}
 
 		if err := createProject(config); err != nil {
-			fmt.Printf("Error creating project: %v\n", err)
+			fmt.Printf("创建项目时出错: %v\n", err)
 			return
 		}
 
-		fmt.Printf("\n✅ Project '%s' created successfully!\n", config.Name)
-		fmt.Printf("\nNext steps:\n")
+		fmt.Printf("\n✅ 项目 '%s' 创建成功!\n", config.Name)
+		fmt.Printf("\n下一步操作:\n")
 		fmt.Printf("  cd %s\n", config.Name)
 		fmt.Printf("  go mod tidy\n")
 		fmt.Printf("  dscli build\n")
@@ -175,7 +175,7 @@ func createProject(config *ProjectConfig) error {
 		return err
 	}
 
-	if err := createMainGo(projectDir, config); err != nil {
+	if err := createMainGoInCmd(projectDir, config); err != nil {
 		return err
 	}
 
@@ -215,7 +215,16 @@ require (
 	return writeFile(filepath.Join(projectDir, "go.mod"), content)
 }
 
-func createMainGo(projectDir string, config *ProjectConfig) error {
+// 原createMainGo函数已被createMainGoInCmd替代，此函数已删除
+
+// createMainGoInCmd 在cmd目录下创建主程序的main.go
+func createMainGoInCmd(projectDir string, config *ProjectConfig) error {
+	// 创建cmd/项目名称目录
+	cmdDir := filepath.Join(projectDir, "cmd", config.Name)
+	if err := os.MkdirAll(cmdDir, 0755); err != nil {
+		return fmt.Errorf("创建cmd目录失败: %w", err)
+	}
+
 	tmpl := `package main
 
 import (
@@ -249,8 +258,8 @@ func main() {
 	rootCmd.PersistentFlags().StringVarP(&configFile, "config", "c", "./config.json", "config file path")
 
 	if err := rootCmd.Execute(); err != nil {
-			log.Fatal(err)
-		}
+		log.Fatal(err)
+	}
 }
 
 func run() {
@@ -291,7 +300,7 @@ func run() {
 		return err
 	}
 
-	file, err := os.Create(filepath.Join(projectDir, "main.go"))
+	file, err := os.Create(filepath.Join(cmdDir, "main.go"))
 	if err != nil {
 		return err
 	}

@@ -1,16 +1,12 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 
-	"github.com/AlecAivazis/survey/v2"
 	"github.com/spf13/cobra"
-)
-
-var (
-	addNonInteractive bool
 )
 
 // addCmd 代表 add 命令
@@ -32,27 +28,24 @@ var addCmd = &cobra.Command{
 			name = args[0]
 		}
 
-		if addNonInteractive {
-			if name == "" {
-				fmt.Println("错误: 非交互模式下需要可执行文件名称")
-				return
-			}
-		} else {
-			var err error
-			name, err = promptForExecutableName(name)
-			if err != nil {
-				fmt.Printf("Error getting executable name: %v\n", err)
-				return
-			}
-		}
-
-		if err := createExecutableInCmd(name); err != nil {
-			fmt.Printf("Error adding executable: %v\n", err)
+		if name == "" {
+			fmt.Println("错误: 需要可执行文件名称")
 			return
 		}
 
-		fmt.Printf("\n✅ Executable '%s' added successfully!\n", name)
-		fmt.Printf("\nNext steps:\n")
+		if err := createExecutableInCmd(name); err != nil {
+			fmt.Printf("添加可执行文件时出错: %v\n", err)
+			return
+		}
+
+		// 更新manifest.json的executable字段
+		if err := updateManifestExecutable(name); err != nil {
+			fmt.Printf("更新manifest.json时出错: %v\n", err)
+			return
+		}
+
+		fmt.Printf("\n✅ 可执行文件 '%s' 添加成功!\n", name)
+		fmt.Printf("\n下一步操作:\n")
 		fmt.Printf("  1. 编辑 cmd/%s/main.go 实现您的逻辑\n", name)
 		fmt.Printf("  2. 运行 'dscli build' 自动构建所有可执行文件\n")
 	},
@@ -61,20 +54,6 @@ var addCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(addCmd)
 
-	// 添加标志
-	addCmd.Flags().BoolVar(&addNonInteractive, "non-interactive", false, "非交互模式")
-}
-
-func promptForExecutableName(initialName string) (string, error) {
-	var name string
-
-	prompt := &survey.Input{
-		Message: "可执行文件名称:",
-		Default: initialName,
-	}
-
-	err := survey.AskOne(prompt, &name, survey.WithValidator(survey.Required))
-	return name, err
 }
 
 func createExecutableInCmd(name string) error {
@@ -116,5 +95,51 @@ func main() {
 	}
 
 	fmt.Printf("创建了模板文件: %s\n", mainGoPath)
+	return nil
+}
+
+// updateManifestExecutable 更新manifest.json的executable字段
+func updateManifestExecutable(name string) error {
+	// 读取现有的manifest.json
+	data, err := os.ReadFile("manifest.json")
+	if err != nil {
+		return fmt.Errorf("读取manifest.json失败: %w", err)
+	}
+
+	var manifest map[string]interface{}
+	if err := json.Unmarshal(data, &manifest); err != nil {
+		return fmt.Errorf("解析manifest.json失败: %w", err)
+	}
+
+	// 获取现有的executable数组
+	executables, ok := manifest["executable"].([]interface{})
+	if !ok {
+		executables = []interface{}{}
+	}
+
+	// 检查新的可执行文件是否已存在
+	newExecutable := fmt.Sprintf("./bin/%s", name)
+	for _, exec := range executables {
+		if execStr, ok := exec.(string); ok && execStr == newExecutable {
+			fmt.Printf("可执行文件 %s 已存在于manifest.json中\n", newExecutable)
+			return nil
+		}
+	}
+
+	// 添加新的可执行文件
+	executables = append(executables, newExecutable)
+	manifest["executable"] = executables
+
+	// 写回manifest.json
+	updatedData, err := json.MarshalIndent(manifest, "", "  ")
+	if err != nil {
+		return fmt.Errorf("序列化manifest.json失败: %w", err)
+	}
+
+	if err := os.WriteFile("manifest.json", updatedData, 0644); err != nil {
+		return fmt.Errorf("写入manifest.json失败: %w", err)
+	}
+
+	fmt.Printf("已更新manifest.json，添加可执行文件: %s\n", newExecutable)
 	return nil
 }
