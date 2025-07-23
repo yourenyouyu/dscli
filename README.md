@@ -24,7 +24,7 @@ sudo make install
 ### 使用Go安装
 
 ```bash
-go install dscli@latest
+go install github.com/yourenyouyu/dscli@v0.0.1
 ```
 
 ## 快速开始
