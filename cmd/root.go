@@ -19,6 +19,9 @@ func Execute() error {
 }
 
 func init() {
+	// 禁用默认的 completion 命令
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
+	
 	// 设置自定义帮助模板
 	rootCmd.SetHelpTemplate(`{{with (or .Long .Short)}}{{. | trimTrailingWhitespaces}}
 
@@ -74,7 +77,4 @@ func init() {
 	
 	// 替换默认的帮助命令
 	rootCmd.SetHelpCommand(helpCmd)
-	
-	// Cobra 也支持本地标志，只有在直接调用此操作时才会运行。
-	rootCmd.Flags().BoolP("toggle", "t", false, "切换选项的帮助信息")
 }
