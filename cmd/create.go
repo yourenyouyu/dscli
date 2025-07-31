@@ -111,42 +111,75 @@ func init() {
 func promptForProjectInfo(initialName string) (*ProjectConfig, error) {
 	config := &ProjectConfig{}
 
-	questions := []*survey.Question{
-		{
-			Name: "name",
-			Prompt: &survey.Input{
-				Message: "项目名称:",
-				Default: initialName,
+	// 如果提供了项目名称，直接使用，不再询问
+	if initialName != "" {
+		config.Name = initialName
+		// 只询问其他信息
+		questions := []*survey.Question{
+			{
+				Name: "description",
+				Prompt: &survey.Input{
+					Message: "项目描述:",
+					Default: "一个 dsserv 模块",
+				},
+				Validate: survey.Required,
 			},
-			Validate: survey.Required,
-		},
-		{
-			Name: "description",
-			Prompt: &survey.Input{
-				Message: "项目描述:",
-				Default: "一个 dsserv 模块",
+			{
+				Name: "version",
+				Prompt: &survey.Input{
+					Message: "版本:",
+					Default: "1.0.0",
+				},
+				Validate: survey.Required,
 			},
-			Validate: survey.Required,
-		},
-		{
-			Name: "version",
-			Prompt: &survey.Input{
-				Message: "版本:",
-				Default: "1.0.0",
+			{
+				Name: "author",
+				Prompt: &survey.Input{
+					Message: "作者:",
+					Default: "DataShell Team",
+				},
 			},
-			Validate: survey.Required,
-		},
-		{
-			Name: "author",
-			Prompt: &survey.Input{
-				Message: "作者:",
-				Default: "DataShell Team",
+		}
+		err := survey.Ask(questions, config)
+		return config, err
+	} else {
+		// 如果没有提供项目名称，询问所有信息
+		questions := []*survey.Question{
+			{
+				Name: "name",
+				Prompt: &survey.Input{
+					Message: "项目名称:",
+					Default: initialName,
+				},
+				Validate: survey.Required,
 			},
-		},
+			{
+				Name: "description",
+				Prompt: &survey.Input{
+					Message: "项目描述:",
+					Default: "一个 dsserv 模块",
+				},
+				Validate: survey.Required,
+			},
+			{
+				Name: "version",
+				Prompt: &survey.Input{
+					Message: "版本:",
+					Default: "1.0.0",
+				},
+				Validate: survey.Required,
+			},
+			{
+				Name: "author",
+				Prompt: &survey.Input{
+					Message: "作者:",
+					Default: "DataShell Team",
+				},
+			},
+		}
+		err := survey.Ask(questions, config)
+		return config, err
 	}
-
-	err := survey.Ask(questions, config)
-	return config, err
 }
 
 func createProject(config *ProjectConfig) error {
