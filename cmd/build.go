@@ -287,9 +287,22 @@ func createPackage(packagePath string, builtBinaries []string) error {
 	tarWriter := tar.NewWriter(gzWriter)
 	defer tarWriter.Close()
 
-	// 添加所有二进制文件
+	// 先添加bin目录
+	if len(builtBinaries) > 0 {
+		binDirHeader := &tar.Header{
+			Name:     "bin/",
+			Mode:     0755,
+			Typeflag: tar.TypeDir,
+		}
+		if err := tarWriter.WriteHeader(binDirHeader); err != nil {
+			fmt.Printf("⚠️  无法创建bin目录: %v\n", err)
+		}
+	}
+
+	// 添加所有二进制文件到bin目录
 	for _, binaryName := range builtBinaries {
-		if err := addFileToTar(tarWriter, filepath.Join("bin", binaryName), binaryName); err != nil {
+		binPath := filepath.Join("bin", binaryName)
+		if err := addFileToTar(tarWriter, binPath, binPath); err != nil {
 			fmt.Printf("⚠️  无法添加二进制文件 %s: %v\n", binaryName, err)
 			continue
 		}

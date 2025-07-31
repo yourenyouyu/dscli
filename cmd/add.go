@@ -117,8 +117,14 @@ func updateManifestExecutable(name string) error {
 		executables = []interface{}{}
 	}
 
+	// 根据manifest.json中的OS字段确定可执行文件名
+	executableName := name
+	if osValue, ok := manifest["os"].(string); ok && osValue == "windows" {
+		executableName += ".exe"
+	}
+
 	// 检查新的可执行文件是否已存在
-	newExecutable := fmt.Sprintf("./bin/%s", name)
+	newExecutable := fmt.Sprintf("./bin/%s", executableName)
 	for _, exec := range executables {
 		if execStr, ok := exec.(string); ok && execStr == newExecutable {
 			fmt.Printf("可执行文件 %s 已存在于manifest.json中\n", newExecutable)

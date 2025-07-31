@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"text/template"
 	"time"
 
@@ -310,6 +311,12 @@ func run() {
 }
 
 func createManifest(projectDir string, config *ProjectConfig) error {
+	// 根据当前平台设置executable路径
+	executableName := config.Name
+	if runtime.GOOS == "windows" {
+		executableName += ".exe"
+	}
+	
 	manifest := ManifestData{
 		Name:            config.Name,
 		Description:     config.Description,
@@ -317,10 +324,10 @@ func createManifest(projectDir string, config *ProjectConfig) error {
 		ManifestVersion: 1,
 		Author:          config.Author,
 		BuildDate:       time.Now().Format(time.RFC3339),
-		OS:              "linux",
-		Arch:            "amd64",
+		OS:              runtime.GOOS,
+		Arch:            runtime.GOARCH,
 		LogDir:          "./logs",
-		Executable:      []string{fmt.Sprintf("./bin/%s", config.Name)},
+		Executable:      []string{fmt.Sprintf("./bin/%s", executableName)},
 	}
 
 	data, err := json.MarshalIndent(manifest, "", "  ")
